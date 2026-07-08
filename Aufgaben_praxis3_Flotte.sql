@@ -1,4 +1,4 @@
-/* Question B, Rebecca Krebs 08.07.2026
+/* Question B, 08.07.2026
 
 B1 Welche Trucks haben die höchsten Wartungskosten? Gibt es Baujahre, die auffällig oft in die Werkstatt
 müssen?
