@@ -14,9 +14,6 @@ Flottendurchschnitt?*\
  --B1 Which trucks have the highest maintenance costs? are there years (makes to) that are more often in
 --the shop?
 
---We need to answer this question:
---frequency year and make in shop
-
 --attempt 1 (total cost by model year)-- this shows the sum of maintenance costs per year model (not taking into account number of trucks in each year)
 SELECT SUM(mr.total_cost),
        tr.model_year
@@ -25,10 +22,6 @@ JOIN logistik.trucks as tr ON mr.truck_id = tr.truck_id
 GROUP BY tr.model_year; --most money on 2015, but I already know the most trucks are from this year too, so it isn´t surprising
 
 -----attempt 2 --- just year, but now corrected for times visited the shop, total cost and cost per visit.
---I must do the same for make and then I want to try make and model (for interaction if that is possible)
---in R
--- total visits, total maintenance costs, and average cost per vists, but still not considering how many trucks are in each group
---just looking at the data I can see there are a lot from 2015
 SELECT tr.model_year,
        COUNT(mr.maintenance_id) as total_workshop_visits, -- wie viele besuch
        SUM(mr.total_cost) as total_maintenance_cost, --total cost
@@ -39,8 +32,7 @@ GROUP BY tr.model_year   --group by  model year
 ORDER BY total_workshop_visits DESC; --sort by trips to workshop highest
 
 
-----both together, same as above, but added truck ID and Make, this would be nice to try in R
--- adding both with truck id so I can have an idea of the cost per truck and per visit
+----both together, same as above, but added truck ID and Make
 SELECT tr.truck_id, --add truck id
        tr.model_year,
        tr.make,
@@ -52,8 +44,6 @@ JOIN logistik.trucks as tr ON mr.truck_id = tr.truck_id
 GROUP BY tr.truck_id, tr.model_year, tr.make --truck id, model year, make
 ORDER BY total_maintenance_cost DESC;
 --------------
---FINAL ANSWER -- ok, maybe not, it looks overloaded ( and I know later the true issue is going to be new vs old trucks.
---- I am going to separate this into two anyway though)
 ------------ Does one kind of truck have more breakdowns/is more expensive to repair
 SELECT tr.make, --make to list makes
        COUNT(DISTINCT tr.model_year) AS count_number_of_years, -- how many per year model
@@ -92,14 +82,8 @@ JOIN logistik.trucks AS tr ON mr.truck_id = tr.truck_id
 GROUP BY tr.model_year
 ORDER BY avg_cost_per_truck DESC;
 
---newer truck is most expensive right now to maintain (based on the average cost per truck (1) and visits to shop (32)
-
 --B2 Wie unterscheidet sich der durchschnittliche Kraftstoffverbrauch zwischen verschiedenen Baujahren oder
 --Kraftstoffarten?
-
---all trucks a diesel, its the USA
--- measured in miles per gallon (directly from trips table and also by dividing the actual distance travel by actual fuel used.
-
 
 SELECT tr.model_year, --year
        tr.fuel_type, --its all diesel but why not
@@ -121,10 +105,6 @@ SELECT tr.make, --type of truck
 GROUP BY tr.make,tr.fuel_type
 ORDER BY tr.fuel_type, tr.make DESC;
 --- they all seem about the same
-
-
-
-
 
 ---B3 Welcher Anteil der Flotte (Trucks, Trailer) ist aktuell außer Betrieb? Gibt es Standorte mit auffällig hohem
 --Ausfallanteil?
@@ -313,12 +293,6 @@ ORDER BY tm.truck_cpm DESC;
 
 
 --FUEL PURCHASES RABBIT HOLE
--------I just read the cpm is usually also used for fuel cost too...I wonder if I could get that too?
---we need an average price for fleet fuel
---average fuel price per truck
---fuel purchases table ( I know this will differ from state to state) but that feels like a lot for me
---lets start with basics
---query 1
 WITH truck AS (SELECT fp.truck_id,
                       lt.make,
                       lt.model_year,
